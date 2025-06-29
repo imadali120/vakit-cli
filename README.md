@@ -1,9 +1,8 @@
-# Vakit - Prikaz vakat vremena za gradove u Bosni
+# Vakit - Bosnian prayer time displayer 
 
-Ovaj Python program sa Rich bibliotekom prikazuje vakat vremena za odabrani grad u Bosni koristeći Aladhan API.  
+This Python program uses the Rich library and displays the prayer times for the cities listed below in Bosnia and Herzegovina, using Al Adhan API.  
 
-Podrška za gradove:
-
+Cities:
 Sarajevo
 Banja Luka
 Mostar
