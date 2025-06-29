@@ -15,3 +15,9 @@ Dependencies:
 
 ```bash
 pip install requests rich
+
+```
+Run using 
+
+```bash
+python3 vakit.py
