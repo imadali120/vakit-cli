@@ -16,12 +16,21 @@ CITIES = {
     "tuzla": {"lat": 44.5383, "lng": 18.6771},
 }
 
+PRAYER_TRANSLATIONS = {
+    "Fajr": "Sabah",
+    "Sunrise": "Izlazak sunca",
+    "Dhuhr": "Podne",
+    "Asr": "Ikindija",
+    "Maghrib": "Akšam",
+    "Isha": "Jacija"
+}
+
 def get_prayer_times(lat, lng):
     url = "http://api.aladhan.com/v1/timings"
     params = {
         "latitude": lat,
         "longitude": lng,
-        "method": 2,  
+        "method": 2,
     }
     resp = requests.get(url, params=params)
     resp.raise_for_status()
@@ -72,14 +81,15 @@ def main():
     timings = data["data"]["timings"]
     date = data["data"]["date"]["gregorian"]["date"]
 
-    # Tabelarni prikaz 
-    table = Table(title=f"Vremena namaza za {city.title()} – {date}", style="bold cyan")
-    table.add_column("Namaz", style="bold yellow")
-    table.add_column("Vrijeme", style="bold magenta")
-
     prayer_names = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"]
-    for p in prayer_names:
-        table.add_row(p, timings[p])
+
+    def build_table():
+        table = Table(title=f"Vremena namaza za {city.title()} – {date}", style="bold cyan")
+        table.add_column("Namaz", style="bold yellow")
+        table.add_column("Vrijeme", style="bold magenta")
+        for p in prayer_names:
+            table.add_row(PRAYER_TRANSLATIONS.get(p, p), timings[p])
+        return table
 
     next_prayer, next_time = get_next_prayer(timings)
 
@@ -89,33 +99,26 @@ def main():
                 now = datetime.now()
                 remaining = next_time - now
                 if remaining.total_seconds() <= 0:
-                    # if vakat old refresh new
                     data = get_prayer_times(coords["lat"], coords["lng"])
                     timings = data["data"]["timings"]
                     next_prayer, next_time = get_next_prayer(timings)
-                    # update
-                    table = Table(title=f"Vremena namaza za {city.title()} – {date}", style="bold cyan")
-                    table.add_column("Namaz", style="bold yellow")
-                    table.add_column("Vrijeme", style="bold magenta")
-                    for p in prayer_names:
-                        table.add_row(p, timings[p])
-                    continue
 
                 countdown_str = format_countdown(remaining)
 
                 panel = Panel.fit(
-                    f"[bold green]Sljedeći namaz:[/bold green] {next_prayer} u {next_time.strftime('%H:%M')}\n"
+                    f"[bold green]Sljedeći namaz:[/bold green] {PRAYER_TRANSLATIONS.get(next_prayer, next_prayer)} u {next_time.strftime('%H:%M')}\n"
                     f"[bold red]Odbrojavanje:[/bold red] {countdown_str}",
                     title="Odbrojavanje do vakta",
                     border_style="bright_blue",
                 )
 
                 layout = Table.grid()
-                layout.add_row(table)
+                layout.add_row(build_table())
                 layout.add_row(panel)
 
                 live.update(layout)
                 time.sleep(1)
+
     except KeyboardInterrupt:
         console.print("\n[bold yellow]Prekid programa. Doviđenja![/bold yellow]")
 
