@@ -8,7 +8,6 @@ from rich.panel import Panel
 
 console = Console()
 
-# Definicija gradova u Bosni sa koordinatama
 CITIES = {
     "sarajevo": {"lat": 43.8563, "lng": 18.4131},
     "banja luka": {"lat": 44.7722, "lng": 17.1910},
@@ -22,7 +21,7 @@ def get_prayer_times(lat, lng):
     params = {
         "latitude": lat,
         "longitude": lng,
-        "method": 2,  # ISNA metoda
+        "method": 2,  
     }
     resp = requests.get(url, params=params)
     resp.raise_for_status()
@@ -73,7 +72,7 @@ def main():
     timings = data["data"]["timings"]
     date = data["data"]["date"]["gregorian"]["date"]
 
-    # Napravi tabelu sa vakatima
+    # Tabelarni prikaz 
     table = Table(title=f"Vremena namaza za {city.title()} – {date}", style="bold cyan")
     table.add_column("Namaz", style="bold yellow")
     table.add_column("Vrijeme", style="bold magenta")
@@ -90,11 +89,11 @@ def main():
                 now = datetime.now()
                 remaining = next_time - now
                 if remaining.total_seconds() <= 0:
-                    # Ako je vakat prošao, osvježi podatke i odbrojavanje
+                    # if vakat old refresh new
                     data = get_prayer_times(coords["lat"], coords["lng"])
                     timings = data["data"]["timings"]
                     next_prayer, next_time = get_next_prayer(timings)
-                    # ažuriraj i tabelu
+                    # update
                     table = Table(title=f"Vremena namaza za {city.title()} – {date}", style="bold cyan")
                     table.add_column("Namaz", style="bold yellow")
                     table.add_column("Vrijeme", style="bold magenta")
